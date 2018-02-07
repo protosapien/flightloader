@@ -1,0 +1,74 @@
+CREATE KEYSPACE datastx WITH replication = 
+	{'class': 'SimpleStrategy', 'replication_factor': '3'}  AND durable_writes = true;
+
+CREATE TABLE datastx.flights (
+	id INT,
+	year INT,
+	day_of_month INT,
+	fl_date DATE,
+	airline_id INT,
+	carrier VARCHAR,
+	fl_num INT,
+	origin_airport_id INT,
+	origin VARCHAR,
+	origin_city_name VARCHAR,
+	origin_state_abr VARCHAR,
+	dest VARCHAR,
+	dest_city_name VARCHAR,
+	dest_state_abr VARCHAR,
+	dep_time TIMESTAMP,
+	arr_time TIMESTAMP,
+	actual_elapsed_time_mins INT,
+	air_time_mins INT,
+	distance INT,
+	PRIMARY KEY ((id),carrier)
+	);
+
+
+CREATE TABLE IF NOT EXISTS datastx.flights_by_origin(
+	id INT,
+	year INT,
+	day_of_month INT,
+	fl_date DATE,
+	airline_id INT,
+	carrier VARCHAR,
+	fl_num INT,
+	origin_airport_id INT,
+	origin VARCHAR,
+	origin_city_name VARCHAR,
+	origin_state_abr VARCHAR,
+	dest VARCHAR,
+	dest_city_name VARCHAR,
+	dest_state_abr VARCHAR,
+	dep_time TIMESTAMP,
+	arr_time TIMESTAMP,
+	actual_elapsed_time_mins INT,
+	air_time_mins INT,
+	distance INT,
+	PRIMARY KEY ((origin), dep_time, id)
+	);
+	
+
+CREATE TABLE IF NOT EXISTS datastx.flights_by_timebin(
+	timebin INT,
+	id INT,
+	year INT,
+	day_of_month INT,
+	fl_date DATE,
+	airline_id INT,
+	carrier VARCHAR,
+	fl_num INT,
+	origin_airport_id INT,
+	origin VARCHAR,
+	origin_city_name VARCHAR,
+	origin_state_abr VARCHAR,
+	dest VARCHAR,
+	dest_city_name VARCHAR,
+	dest_state_abr VARCHAR,
+	dep_time TIMESTAMP,
+	arr_time TIMESTAMP,
+	actual_elapsed_time_mins INT,
+	air_time_mins INT,
+	distance INT,
+	PRIMARY KEY ((timebin), carrier, origin, dest, id)
+	);

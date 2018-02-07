@@ -1,0 +1,4 @@
+FlightsLoader 1.1
+
+
+bin/dse spark-submit --class "com.datasciencegroup.flights.FlightsLoader" /home/cls/dse/scalaApps/FlightLoader/target/scala-2.11/FlightsLoader_1.1.jar

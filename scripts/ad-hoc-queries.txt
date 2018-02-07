@@ -1,0 +1,44 @@
+1. How many flights originated from the ‘HNL’ airport code on 2012-01-25
+	
+import org.apache.spark.sql.functions._
+	
+spark.sql("SELECT COUNT(*) AS flight_count FROM datastx.flights_by_origin WHERE origin='HNL' AND fl_date = '2012-01-25'").show()
+
+
+2. How many airport codes start with the letter ‘A’
+
+import org.apache.spark.sql.functions._
+
+val originDf = spark.sql("SELECT distinct(origin) FROM datastx.flights_by_origin WHERE SUBSTRING(origin,0,1) = 'A'")
+val destDf = spark.sql("SELECT distinct(dest) FROM datastx.flights_by_origin WHERE SUBSTRING(dest,0,1) = 'A'")
+
+originDf.as("o").join(destDf.as("d"), $"o.origin" === $"d.dest").select("o.origin", "d.dest").show(25)
+originDf.as("o").join(destDf.as("d"), $"o.origin" === $"d.dest","left_outer").select("o.origin", "d.dest").show(25)
+originDf.as("o").join(destDf.as("d"), $"o.origin" === $"d.dest","right_outer").select("o.origin", "d.dest").show(25)
+
+
+3. What originating airport had the most flights on 2012-01-23
+	
+spark.sql("SELECT origin, COUNT(origin) FROM datastx.flights_by_origin WHERE fl_date = '2012-01-23' GROUP BY origin  ORDER BY COUNT(origin) DESC").show(1)
+
+
+4. Bonus Question
+
+import org.apache.spark.sql.functions._
+val update_airport_code = udf { (str: String)  => ("TST") }
+
+
+// update origin
+
+val flightsDfOrigin = spark.sql("SELECT * FROM datastx.flights WHERE origin = 'BOS'")
+val newFlightsDfO = flightsDfOrigin.withColumn("origin", update_airport_code($"origin"))
+	
+newFlightsDfO.write.format("org.apache.spark.sql.cassandra").mode("append").options(Map("table" -> "flights", "keyspace" -> "datastx","spark.cassandra.output.consistency.level" -> "LOCAL_ONE")).save()
+
+
+// update dest
+
+val flightsDfDest = spark.sql("SELECT * FROM datastx.flights WHERE dest = 'BOS'")
+val newFlightsDfD = flightsDfDest.withColumn("dest", update_airport_code($"dest"))
+	
+newFlightsDfD.write.format("org.apache.spark.sql.cassandra").mode("append").options(Map("table" -> "flights", "keyspace" -> "datastx","spark.cassandra.output.consistency.level" -> "LOCAL_ONE")).save()
